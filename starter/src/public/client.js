@@ -1,7 +1,7 @@
 let store = {
     user: { name: "Student" },
     apod: '',
-    rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+    rovers: '',
 }
 
 // add our markup to the page
@@ -36,7 +36,8 @@ const App = (state) => {
                     explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
                     but generally help with discoverability of relevant imagery.
                 </p>
-                ${ImageOfTheDay(apod)}
+
+                ${RoverData(rovers)}
             </section>
         </main>
         <footer></footer>
@@ -63,43 +64,74 @@ const Greeting = (name) => {
     `
 }
 
-// Example of a pure function that renders infomation requested from the backend
-const ImageOfTheDay = (apod) => {
 
-    // If image does not already exist, or it is not from today -- request it again
-    const today = new Date()
-    const photodate = new Date(apod.date)
-    console.log(photodate.getDate(), today.getDate());
+const RoverData = (rovers) => {
+    console.log(store)
 
-    console.log(photodate.getDate() === today.getDate());
-    if (!apod || apod.date === today.getDate() ) {
-        getImageOfTheDay(store)
+    if (rovers === '' ) {
+        getRoverData(store)
+        console.log(store)
     }
 
-    // check if the photo of the day is actually type video!
-    if (apod.media_type === "video") {
-        return (`
-            <p>See today's featured video <a href="${apod.url}">here</a></p>
-            <p>${apod.title}</p>
-            <p>${apod.explanation}</p>
-        `)
-    } else {
-        return (`
-            <img src="${apod.image.url}" height="350px" width="100%" />
-            <p>${apod.image.explanation}</p>
-        `)
+    if (rovers) {
+        return `
+            <h1>Welcome, ${rovers}!</h1>
+        `
     }
+
+    return `
+        <pre>${rovers}</pre>
+    `
 }
+
+
+// Example of a pure function that renders infomation requested from the backend
+// const ImageOfTheDay = (apod) => {
+//
+//     // If image does not already exist, or it is not from today -- request it again
+//     const today = new Date()
+//     const photodate = new Date(apod.date)
+//     console.log(photodate.getDate(), today.getDate());
+//
+//     console.log(photodate.getDate() === today.getDate());
+//     if (!apod || apod.date === today.getDate() ) {
+//         getImageOfTheDay(store)
+//     }
+//
+//     // check if the photo of the day is actually type video!
+//     if (apod.media_type === "video") {
+//         return (`
+//             <p>See today's featured video <a href="${apod.url}">here</a></p>
+//             <p>${apod.title}</p>
+//             <p>${apod.explanation}</p>
+//         `)
+//     } else {
+//         return (`
+//             <img src="${apod.image.url}" height="350px" width="100%" />
+//             <p>${apod.image.explanation}</p>
+//         `)
+//     }
+// }
 
 // ------------------------------------------------------  API CALLS
 
 // Example API call
-const getImageOfTheDay = (state) => {
-    let { apod } = state
+// const getImageOfTheDay = (state) => {
+//     let { apod } = state
+//
+//     fetch(`http://localhost:3000/apod`)
+//         .then(res => res.json())
+//         .then(apod => updateStore(store, { apod }))
+//
+//     return data
+// }
 
-    fetch(`http://localhost:3000/apod`)
+const getRoverData = (state) => {
+    let { rovers } = state
+
+    fetch(`http://localhost:3000/rovers`)
         .then(res => res.json())
-        .then(apod => updateStore(store, { apod }))
+        .then(rovers => updateStore(store, { rovers }))
 
     return data
 }
