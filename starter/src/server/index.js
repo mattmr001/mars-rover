@@ -65,6 +65,33 @@ async function getRoverApiData (rovername) {
   }
 }
 
+const buildImages = (apiData) => {
+
+    const roverImages = apiData
+
+    return roverImages
+
+}
+
+async function debug () {
+    try {
+        const apiData = await getRoverApiData('curiosity')
+        // DEBUG:
+        // console.log('apiData : ', apiData)
+        const roverImages = buildImages(apiData)
+        // DEBUG:
+        // console.log('roverImages : ', roverImages)
+        return roverImages
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+debug().then(data => {
+    console.log(data);
+});
+
 app.get('/rovers', async (req, res) => {
       try {
           const roverData = await getRoverApiData('curiosity')
