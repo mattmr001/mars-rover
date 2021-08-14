@@ -29,19 +29,11 @@ app.use('/', express.static(path.join(__dirname, '../public')))
 //     }
 // })
 
-// app.get('/rovers', async (req, res) => {
-//     try {
-//
-//         let roverData = await fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/?api_key=${process.env.API_KEY}`)
-//             .then(res => res.json())
-//         res.send({ roverData })
-//     } catch (err) {
-//         console.log('error:', err);
-//     }
-// })
+// Globals
+const cameraList = ['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES']
 
 // :::::::::::::::::::::::::::::::::::::::::::
-async function getRoverApiData (rovername) {
+async function getRoverApiData (roverName) {
   try {
     const protocol = 'https'
     const nasaUrl = 'api.nasa.gov/mars-photos/api/v1/rovers'
@@ -54,8 +46,8 @@ async function getRoverApiData (rovername) {
       method: 'GET'
     }
 
-    const apiQuery = `${protocol}://${nasaUrl}/${rovername}/?${querystring.stringify(params)}`
-    // DEBUG:
+    const apiQuery = `${protocol}://${nasaUrl}/${roverName}/latest_photos?${querystring.stringify(params)}`
+    // // DEBUG:
     console.log('Api query', apiQuery)
     const result = await fetch(apiQuery, options)
     const resultJson = await result.json()
@@ -65,12 +57,32 @@ async function getRoverApiData (rovername) {
   }
 }
 
-const buildImages = (apiData) => {
+const buildCameraImages = (apiData, cameraName) => {
+    const roverData = Object.values(apiData).flat()
+    // // DEBUG:
+    // console.log(roverData)
+    const camera = roverData.filter((rover, index, arr) => rover['camera']['name'] === cameraName)
+    const cameraData = camera.map(data => {
+        return {
+            rover: data['rover']['name'],
+            camera_name: data['camera']['name'],
+            img_src: data['img_src']
+        }
+    })
+    return cameraData
+}
 
-    const roverImages = apiData
+const buildImageCollection = (apiData, cameraList) => {
+    const imgData = cameraList.reduce((result, cameraName) => {
+        const builtImages = buildCameraImages(apiData, cameraName)
 
-    return roverImages
-
+        if (builtImages != 0){
+           // Push the latest image from each camera
+           result.push(builtImages[0])
+        }
+        return result
+    }, [])
+    return imgData
 }
 
 async function debug () {
@@ -78,10 +90,11 @@ async function debug () {
         const apiData = await getRoverApiData('curiosity')
         // DEBUG:
         // console.log('apiData : ', apiData)
-        const roverImages = buildImages(apiData)
+        // const roverImages = buildImages(apiData, 'FHAZ')
+        const imageCollection = buildImageCollection(apiData, cameraList)
         // DEBUG:
         // console.log('roverImages : ', roverImages)
-        return roverImages
+        return imageCollection
 
     } catch (error) {
         console.log(error)
@@ -91,6 +104,7 @@ async function debug () {
 debug().then(data => {
     console.log(data);
 });
+
 
 app.get('/rovers', async (req, res) => {
       try {
