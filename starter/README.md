@@ -12,11 +12,11 @@ We have supplied some of the foundational code for you. So follow these steps to
 
 1. We'll start with the typical setup - clone theis repo and install the dependencies
 
- - [ ] To clone the repo, remember to clone just the starter branch:
+ - [x] To clone the repo, remember to clone just the starter branch:
 
 ```git clone --single-branch --branch starter <repo-name>```
 
- - [ ] For this project we are using yarn as our package manager, so to install your depencies run:
+ - [x] For this project we are using yarn as our package manager, so to install your depencies run:
 
 ```yarn install``` 
 
@@ -34,7 +34,7 @@ We have supplied some of the foundational code for you. So follow these steps to
 
 To complete this project, your UI must show the following:
 
-- [ ] A gallery of the most recent images sent from each mars rover
+- [x] A gallery of the most recent images sent from each mars rover
 - [ ] The launch date, landing date, name and status along with any other information about the rover
 - [ ] A selection bar for the user to choose which rover's information they want to see
 

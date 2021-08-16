@@ -9,6 +9,7 @@ const bodyParser = require('body-parser')
 const fetch = require('node-fetch')
 const path = require('path')
 const querystring = require("querystring");
+const Immutable = require('immutable');
 
 /* Middleware */
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -57,6 +58,41 @@ async function getRoverApiData (roverName) {
   }
 }
 
+/*
+ * The build a collection of objects containing relevant info for a rover.
+ */
+const buildRoverInformation = (apiData) => {
+    const roverData = Object.values(apiData).flat()
+    // // DEBUG:
+    // console.log(roverData)
+    const roverInformation = roverData.reduce((accumulator, current, index) => {
+        const keyInfo = {
+            name: current['rover']['name'],
+            landing_date: current['rover']['landing_date'],
+            launch_date: current['rover']['launch_date'],
+        }
+        // Get the first item and push it to array
+        if (index === 1) {
+            accumulator.push(keyInfo)
+        }
+        return accumulator
+    }, [])
+    return roverInformation
+
+    const imgCollection = cameraList.reduce((accumulator, cameraName) => {
+        const cameraImages = buildCameraImages(apiData, cameraName)
+
+        if (cameraImages != 0){
+           // Push the latest image from camera.
+           accumulator.push(cameraImages[0])
+        }
+        return accumulator
+    }, [])
+}
+
+/*
+ * The build a collection of objects containing images taken by a specific camera and its name.
+ */
 const buildCameraImages = (apiData, cameraName) => {
     const roverData = Object.values(apiData).flat()
     // // DEBUG:
@@ -64,7 +100,6 @@ const buildCameraImages = (apiData, cameraName) => {
     const camera = roverData.filter((rover, index, arr) => rover['camera']['name'] === cameraName)
     const cameraData = camera.map(data => {
         return {
-            rover: data['rover']['name'],
             camera_name: data['camera']['name'],
             img_src: data['img_src']
         }
@@ -72,29 +107,60 @@ const buildCameraImages = (apiData, cameraName) => {
     return cameraData
 }
 
+/* The rover has a series of cameras.
+ * Grab the latest image from each camera and place it in a collection.
+ * @summary Build a collection of images taken by each camera.
+ */
 const buildImageCollection = (apiData, cameraList) => {
-    const imgData = cameraList.reduce((result, cameraName) => {
-        const builtImages = buildCameraImages(apiData, cameraName)
-
-        if (builtImages != 0){
-           // Push the latest image from each camera
-           result.push(builtImages[0])
+    const imgCollection = cameraList.reduce((accumulator, cameraName) => {
+        const cameraImages = buildCameraImages(apiData, cameraName)
+        // check to see if images exist for that camera
+        if (cameraImages != 0){
+           // Push the latest image from camera.
+           accumulator.push(cameraImages[0])
         }
-        return result
+        return accumulator
     }, [])
-    return imgData
+    return imgCollection
+}
+
+const buildRoverData = (apiData, cameraList) => {
+        const roverInfo = buildRoverInformation(apiData)
+        const imageCollection = buildImageCollection(apiData, cameraList)
+
+        const roverinformation = {
+            rover_info: roverInfo,
+            rover_images: imageCollection,
+        }
+    return roverinformation
 }
 
 async function debug () {
     try {
         const apiData = await getRoverApiData('curiosity')
-        // DEBUG:
+        // // DEBUG apiData:
         // console.log('apiData : ', apiData)
+        // return apiData
+
+        // // DEBUG roverDetails:
+        // const roverDetails = buildRoverInformation(apiData)
+        // console.log('RoverInformation : ', apiData)
+        // return roverDetails
+
+        // // DEBUG roverImages:
         // const roverImages = buildImages(apiData, 'FHAZ')
-        const imageCollection = buildImageCollection(apiData, cameraList)
-        // DEBUG:
         // console.log('roverImages : ', roverImages)
-        return imageCollection
+        // return roverImages
+
+        // // DEBUG collectionImages:
+        // const imageCollection = buildImageCollection(apiData, cameraList)
+        // console.log('ImageCollection : ', imageCollection)
+        // return imageCollection
+
+        // DEBUG roverData:
+        const data = buildRoverData(apiData, cameraList)
+        return data
+
 
     } catch (error) {
         console.log(error)
