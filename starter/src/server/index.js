@@ -70,24 +70,15 @@ const buildRoverInformation = (apiData) => {
             name: current['rover']['name'],
             landing_date: current['rover']['landing_date'],
             launch_date: current['rover']['launch_date'],
+            earth_date: current['earth_date']
         }
-        // Get the first item and push it to array
+        // Get the first item and push it to our accumulator
         if (index === 1) {
             accumulator.push(keyInfo)
         }
         return accumulator
     }, [])
     return roverInformation
-
-    const imgCollection = cameraList.reduce((accumulator, cameraName) => {
-        const cameraImages = buildCameraImages(apiData, cameraName)
-
-        if (cameraImages != 0){
-           // Push the latest image from camera.
-           accumulator.push(cameraImages[0])
-        }
-        return accumulator
-    }, [])
 }
 
 /*
@@ -129,7 +120,7 @@ const buildRoverData = (apiData, cameraList) => {
         const imageCollection = buildImageCollection(apiData, cameraList)
 
         const roverinformation = {
-            rover_info: roverInfo,
+            rover_info: roverInfo[0],
             rover_images: imageCollection,
         }
     return roverinformation
@@ -148,7 +139,7 @@ async function debug () {
         // return roverDetails
 
         // // DEBUG roverImages:
-        // const roverImages = buildImages(apiData, 'FHAZ')
+        // const roverImages = buildCameraImages(apiData, 'FHAZ')
         // console.log('roverImages : ', roverImages)
         // return roverImages
 
