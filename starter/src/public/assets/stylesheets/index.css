@@ -1,24 +1,105 @@
 /* -------------------  MOBILE  --------------------- */
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
 
 body {
-  display: flex;
-  flex-direction: column;
-  font-family: Arial;
-  min-height: 100vh;
+  margin: 40px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: inherit;
+  background-color: #fff;
+  color: #444;
 }
 
-header {
-  /* header styles */
+h1, h2, h3{
+  color: #FC3D21;
 }
 
-main {
-  flex: 1;
+h1, h2, h3, h4, p {
+  margin: 0 0 1em 0;
+  font-weight: inherit;
+}
+
+.wrapper {
+  max-width: 1440px;
+  margin: 0 20px;
+  display: grid;
+  grid-gap: 10px;
+}
+
+@media screen and (min-width: 500px) {
+
+  .header{
+    color: #FC3D21 !important;
+  }
+
+  /* no grid support? */
+  .sidebar {
+    float: left;
+    width: 19.1489%;
+    border: 1px solid black;
+  }
+
+  .content {
+    float: right;
+    width: 79.7872%;
+    border: 1px solid black;
+
+  }
+
+  .img_grid{
+    display: grid;
+    margin: 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-auto-rows: minmax(200px, auto);
+    grid-gap: 8px;
+  }
+
+  .img_grid__figure{
+     /* needed for the flex layout*/
+    margin-left: 8px;
+    margin-right: 8px;
+    flex: 1 1 200px;
+  }
+
+  .img_grid__img{
+     /* needed for the flex layout*/
+    max-width: 100%;
+    height: auto;
+  }
+
+  .wrapper {
+    margin: 0 auto;
+    grid-template-columns: 1fr 3fr;
+  }
+
+  .header, .footer {
+    grid-column: 1 / -1;
+    /* needed for the floated layout */
+    clear: both;
+  }
+
+}
+
+.wrapper > * {
+  background-color: #fff;
+  color: #000;
+  border-radius: 0px;
   padding: 20px;
+  font-size: 150%;
+  /* needed for the floated layout*/
+  margin-bottom: 10px;
 }
 
-footer {
-  /* footer styles */
+/* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
+@supports (display: grid) {
+  .wrapper > * {
+    width: auto;
+    margin: 0;
+  }
 }
+
 
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {

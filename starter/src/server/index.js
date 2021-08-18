@@ -9,7 +9,7 @@ const bodyParser = require('body-parser')
 const fetch = require('node-fetch')
 const path = require('path')
 const querystring = require("querystring");
-const Immutable = require('immutable');
+const {Map, List} = require('immutable');
 
 /* Middleware */
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -31,9 +31,18 @@ app.use('/', express.static(path.join(__dirname, '../public')))
 // })
 
 // Globals
-const cameraList = ['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES']
+const globals = Map({
+    rover_list: List(['Curiosity', 'Opportunity', 'Spirit']),
+    camera_list: List(['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES']),
+});
+
+// const cameraList = ['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES']
 
 // :::::::::::::::::::::::::::::::::::::::::::
+
+/*
+ * Get data pertaining to the latest photos from a specified NASA rover
+ */
 async function getRoverApiData (roverName) {
   try {
     const protocol = 'https'
@@ -63,17 +72,15 @@ async function getRoverApiData (roverName) {
  */
 const buildRoverInformation = (apiData) => {
     const roverData = Object.values(apiData).flat()
-    // // DEBUG:
-    // console.log(roverData)
     const roverInformation = roverData.reduce((accumulator, current, index) => {
         const keyInfo = {
-            name: current['rover']['name'],
-            landing_date: current['rover']['landing_date'],
             launch_date: current['rover']['launch_date'],
-            earth_date: current['earth_date']
+            landing_date: current['rover']['landing_date'],
+            status: current['rover']['status'],
+            photo_date: current['earth_date'],
         }
-        // Get the first item and push it to our accumulator
-        if (index === 1) {
+        // Get the first entry in our data and push it to our accumulator
+        if (index === 0) {
             accumulator.push(keyInfo)
         }
         return accumulator
@@ -115,21 +122,49 @@ const buildImageCollection = (apiData, cameraList) => {
     return imgCollection
 }
 
-const buildRoverData = (apiData, cameraList) => {
+/*
+ * Build an object containing the newest images and details from an individual rover.
+ */
+const buildRoverObject = (apiData, cameraList, roverName) => {
         const roverInfo = buildRoverInformation(apiData)
         const imageCollection = buildImageCollection(apiData, cameraList)
 
         const roverinformation = {
+            rover_name: roverName,
             rover_info: roverInfo[0],
             rover_images: imageCollection,
         }
     return roverinformation
 }
 
+/*
+ * Build an object containing data for every rover.
+ */
+async function buildAllRovers (globalsObj) {
+    const roverList = globalsObj.get('rover_list')
+    const allRoverData = await Promise.all(roverList.toJS().map( async x => {
+        try {
+            const apiData = await getRoverApiData(x)
+            const cameraList = (globalsObj.get('camera_list'))
+            const roverObject = buildRoverObject(apiData, cameraList, x)
+            return roverObject
+
+        } catch (error) {
+            console.log(error)
+        }
+    }))
+    return allRoverData
+}
+
+
 async function debug () {
     try {
-        const apiData = await getRoverApiData('curiosity')
-        // // DEBUG apiData:
+        console.log('DEBUG START: ');
+        // console.log(roversMap.get('rover_list').get(1))
+
+        // const roverName = globals.get('rover_list').get(1)
+        // const apiData = await getRoverApiData(globals.get(roverName))
+        // DEBUG apiData:
         // console.log('apiData : ', apiData)
         // return apiData
 
@@ -148,9 +183,17 @@ async function debug () {
         // console.log('ImageCollection : ', imageCollection)
         // return imageCollection
 
-        // DEBUG roverData:
-        const data = buildRoverData(apiData, cameraList)
-        return data
+        // DEBUG buildRoverObject:
+        // const roverName = globals.get('rover_list').get(1)
+        // console.log('NAME!!!:', roverName)
+        // const apiData = await getRoverApiData(roverName)
+        // const cameraList = (globals.get('camera_list'))
+        // const data = buildRoverObject(apiData, cameraList, roverName)
+        // return data
+
+        // DEBUG allRoverData:
+        // const data = buildAllRovers(globals)
+        // return data
 
 
     } catch (error) {
@@ -159,15 +202,16 @@ async function debug () {
 }
 
 debug().then(data => {
+    console.log('DEBUG OUTPUT: ');
     console.log(data);
+    console.log('DEBUG END')
 });
 
 
 app.get('/rovers', async (req, res) => {
       try {
-          const roverData = await getRoverApiData('curiosity')
-          console.log('Data output: ', roverData)
-          res.json(roverData)
+        const data = await buildAllRovers(globals)
+        res.json(data)
       } catch (error) {
         console.log(error)
   }
