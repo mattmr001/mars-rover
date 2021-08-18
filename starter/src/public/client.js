@@ -27,7 +27,7 @@ const App = (state) => {
         <header class="header">NASA ROVERS</header>
         <aside class="sidebar">
         <h2>SIDEBAR</h2>
-        <ul><li>rover 1</li><li>rover 1</li><li>rover 1</li></ul>
+        ${ListRovers(store.rovers)}
         </aside>
         <main class="content">
             ${Greeting(store.user.name)}
@@ -35,6 +35,7 @@ const App = (state) => {
                 <h3>Put things on the page!</h3>
                 <p>Here is an example section.</p>
                 ${RoverImages(store.rovers)}
+                ${ShowRovers()}
             </section>
         </main>
         <footer>Stuff</footer>
@@ -59,6 +60,30 @@ const Greeting = (name) => {
     return `
         <h1>Hello!</h1>
     `
+}
+
+const ListRovers = (rovers) => {
+    const roverList = rovers.map(x => {
+        const rover = x['rover_name']
+        return `
+            <li datarovername="${rover}">${rover}</li>
+        `
+    }).join("")
+    return `
+        <ul>${roverList}</ul>
+    `
+}
+
+const ShowRovers = () => {
+    const roverListItemElements = document.querySelectorAll("[datarovername]");
+    console.log('roverListItemElements : ',roverListItemElements)
+    // const elements = roverListItemElements.forEach(el =>{
+    //     console.log(el)
+    //     el.addEventListener(('click', (e) => {
+    //         console.log('clicked')
+    //     }))
+    // })
+    return roverListItemElements
 }
 
 const RoverImages = (rovers) => {
