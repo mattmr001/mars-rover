@@ -2,65 +2,74 @@
 //     user: { name: "something" },
 //     apod: '',
 //     rovers: ['Curiosity', 'Opportunity', 'Spirit'],
-//     currentRover: 'NAN',
+//     selectedRover: 'NAN',
 //     roversData: '',
 // }
 
-let store = Immutable.Map({
-    user: Immutable.Map({name: "Matt"}),
-    apod: '',
-    currentRover: '',
+let store = {
+    selectedRover: '',
     rovers: Immutable.List(['Curiosity', 'Opportunity', 'Spirit']),
-    roversData: ''
-    })
+    roverData: '',
+    }
 
 // add our markup to the page
 const root = document.getElementById('root')
 
-const updateStore = (store, newState) => {
+const updateStore = (newState) => {
     store = Object.assign(store, newState)
     render(root, store)
 }
 
 const render = async (root, state) => {
     root.innerHTML = App(state)
-
     const roverListItemElements = document.querySelectorAll("[datarovername]");
     roverListItemElements.forEach(function (roverName) {
-        roverName.addEventListener('click', ShowRovers);
+        roverName.addEventListener('click', selectedRover);
     });
 
 }
 
-const ShowRovers = (evt) => {
-    // debug
-    let { currentRover } = evt.target.getAttribute('datarovername')
+const selectedRover = (evt) => {
 
-    console.log('Starting currentRover: ', store.currentRover)
-    console.log("ShowRovers target: ", evt.target.getAttribute('datarovername'))
-    console.log('store currentRover: ', currentRover)
-    updateStore(store.currentRover, { currentRover })
-    console.log(store)
+    // const roverDetails = document.getElementById('roverDetails')
+    const roverName = evt.target.getAttribute('datarovername')
+    updateStore({"selectedRover": roverName})
+    console.log('New store: ', store)
+    console.log('selectedRover output: ', roverName)
+    return roverName
 }
+
+// const ShowRover = (selectedRover) => {
+//     // debug
+//     // console.log('Starting selectedRover: ', store.get(selectedRover))
+//     const roverDetails = document.getElementById('roverDetails')
+//     const roverName = evt.target.getAttribute('datarovername')
+//     // console.log('store selectedRover: ', selectedRover)
+//     updateStore({"selectedRover": roverName})
+//     const images = RoverImages(store['roverData'], roverName)
+//
+//     roverDetails.innerHTML = images
+//     console.log(roverDetails)
+// }
 
 
 // create content
 const App = (state) => {
-    let { roversData } = state
-    RoverData(roversData)
+    let { roverData } = state
+    RoverData(roverData)
 
     return `
         <div class="wrapper">
         <header class="header">NASA ROVERS</header>
 
-        ${SideBar(store.rovers)}
+        ${SideBar(store['rovers'])}
 
         <main class="content">
-            ${Greeting(store.user.name)}
-            <section>
+            ${Greeting(store['selectedRover'])}
+            <section id="roverDetails" class="content__rover-details">
                 <h3>Put things on the page!</h3>
                 <p>Here is an example section.</p>
-                ${ShowRovers}
+                ${RoverImages(store)}
             </section>
         </main>
         <footer>Stuff</footer>
@@ -125,18 +134,51 @@ const SideBar = (rovers) => {
 //     return roverListItemElements
 // }
 
-// const RoverImages = (rovers) => {
-//     const roverImages = rovers[0]['rover_images']
-//     const builtImages = roverImages.map(entry => {
-//         return`
-//             <figure class="img_grid__figure">
-//                 <img class="img_grid__img" src="${entry['img_src']}">
-//                 <figcaption class="img_grid__caption">CAMERA: ${entry['camera_name']}</figcaption>
-//             </figure>
-//         `
-//     }).join("")
-//     return `<div class="img_grid">${builtImages}</div>`
-// }
+const RoverImages = (store) => {
+
+
+    const rover = store.roverData.filter(obj => {
+        return obj.rover_name === store.selectedRover
+    })
+    console.log('New store: ', store)
+    console.log('selectedRover output: ', store.selectedRover)
+    console.log('selected rover: ', rover)
+
+    // return rover
+    // console.log('RoverImages roverData:', store.roverData)
+    // console.log('RoverImages selectedRover:', store.selectedRover)
+    // const rover = store.roverData.filter(obj => {
+    //     console.log('RoverImages obj:', obj)
+    //     console.log('RoverImages rover_name:', obj.rover_name)
+    //     return obj.rover_name === selectedRover
+    // })
+
+    if (rover[0] != undefined) {
+        const roverImages = rover[0]['rover_images']
+        const builtImages = roverImages.map(entry => {
+            return`
+                <figure class="img_grid__figure">
+                    <img class="img_grid__img" src="${entry['img_src']}">
+                    <figcaption class="img_grid__caption">CAMERA: ${entry['camera_name']}</figcaption>
+                </figure>
+            `
+        }).join("")
+        return `<div class="img_grid">${builtImages}</div>`
+    } else {
+        console.log("failed to retrieve images")
+    }
+
+
+    // const builtImages = roverImages.map(entry => {
+    //     return`
+    //         <figure class="img_grid__figure">
+    //             <img class="img_grid__img" src="${entry['img_src']}">
+    //             <figcaption class="img_grid__caption">CAMERA: ${entry['camera_name']}</figcaption>
+    //         </figure>
+    //     `
+    // }).join("")
+    // return `<div class="img_grid">${builtImages}</div>`
+}
 
 const RoverInfo = (rovers) => {
     const launchDate = rovers[0]['rover_info']['earth_date']
@@ -180,11 +222,11 @@ const RoverData = (roversData) => {
 
 const getRoverData = (state) => {
 
-    let { roversData } = state
+    let { selectedRover } = state
     console.log('GetRoverData start log state: ', state)
 
     fetch(`http://localhost:3000/rovers`)
         .then(res => res.json())
-        .then(roversData => updateStore(store, { roversData } ))
-    return data
+        .then(roverData => updateStore({roverData}))
+    return roverData
 }
