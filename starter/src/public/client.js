@@ -67,12 +67,12 @@ const App = (state) => {
         <main class="content">
             ${Greeting(store['selectedRover'])}
             <section id="roverDetails" class="content__rover-details">
-                <h3>Put things on the page!</h3>
-                <p>Here is an example section.</p>
+                <h3>Data to be placed</h3>
+                <p>Data not yet placed</p>
                 ${RoverImages(store)}
             </section>
         </main>
-        <footer>Stuff</footer>
+        <footer class="footer">2021</footer>
         </div>
     `
 }
@@ -88,11 +88,11 @@ window.addEventListener('load', () => {
 const Greeting = (name) => {
     if (name) {
         return `
-            <h1>Rover Name: ${name}</h1>
+            <h2>Rover Name: ${name}</h2>
         `
     }
     return `
-        <h1>Hello!</h1>
+        <h2>Select rover from menu</h2>
     `
 }
 
@@ -111,13 +111,13 @@ const Greeting = (name) => {
 const SideBar = (rovers) => {
     const roverList = rovers.map(roverName => {
         return `
-            <li datarovername="${roverName}">${roverName}</li>
+            <li class="rover-list__item" datarovername="${roverName}">${roverName}</li>
         `
     }).join("")
     return `
         <aside class="sidebar">
-            <h2>SIDEBAR</h2>
-            <ul>${roverList}</ul>
+            <h2>ROVERS</h2>
+            <ul class="rover-list">${roverList}</ul>
         </aside>
     `
 }
@@ -165,7 +165,7 @@ const RoverImages = (store) => {
         }).join("")
         return `<div class="img_grid">${builtImages}</div>`
     } else {
-        console.log("failed to retrieve images")
+        return `<div class="img_grid">failed to retrieve images</div>`
     }
 
 

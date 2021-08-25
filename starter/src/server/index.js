@@ -44,27 +44,39 @@ const globals = Map({
  * Get data pertaining to the latest photos from a specified NASA rover
  */
 async function getRoverApiData (roverName) {
-  try {
-    const protocol = 'https'
-    const nasaUrl = 'api.nasa.gov/mars-photos/api/v1/rovers'
+    try {
+        const protocol = 'https'
+        const nasaUrl = 'api.nasa.gov/mars-photos/api/v1/rovers'
 
-    const params = {
-      api_key: `${process.env.API_KEY}`
-    }
+        const params = {
+          api_key: `${process.env.API_KEY}`
+        }
 
-    const options = {
-      method: 'GET'
-    }
+        const options = {
+          method: 'GET'
+        }
 
-    const apiQuery = `${protocol}://${nasaUrl}/${roverName}/latest_photos?${querystring.stringify(params)}`
-    // // DEBUG:
-    console.log('Api query', apiQuery)
-    const result = await fetch(apiQuery, options)
-    const resultJson = await result.json()
-    return resultJson
-  } catch (error) {
+        let apiQuery = ''
+
+        if (roverName === 'Curiosity') {
+          apiQuery = `${protocol}://${nasaUrl}/${roverName}/latest_photos?${querystring.stringify(params)}`
+        } else if ( roverName === 'Opportunity') {
+            apiQuery = `${protocol}://${nasaUrl}/${roverName}/photos?earth_date=2018-06-04&${querystring.stringify(params)}`
+        } else if ( roverName === 'Spirit') {
+            apiQuery = `${protocol}://${nasaUrl}/${roverName}/photos?earth_date=2010-02-01&${querystring.stringify(params)}`
+        } else {
+            const error = 'Invalid Rover name'
+            return error
+        }
+
+        // // DEBUG:
+        console.log('Api query', apiQuery)
+        const result = await fetch(apiQuery, options)
+        const resultJson = await result.json()
+        return resultJson
+    } catch (error) {
     throw (error)
-  }
+    }
 }
 
 /*
@@ -162,24 +174,25 @@ async function debug () {
         console.log('DEBUG START: ');
         // console.log(roversMap.get('rover_list').get(1))
 
-        // const roverName = globals.get('rover_list').get(1)
-        // const apiData = await getRoverApiData(globals.get(roverName))
+        const roverName = globals.get('rover_list').get('1')
+        const apiData = await getRoverApiData('Opportunity')
         // DEBUG apiData:
         // console.log('apiData : ', apiData)
         // return apiData
+        // console.log(apiData)
 
-        // // DEBUG roverDetails:
+        // DEBUG roverDetails:
         // const roverDetails = buildRoverInformation(apiData)
         // console.log('RoverInformation : ', apiData)
         // return roverDetails
 
-        // // DEBUG roverImages:
+        // DEBUG roverImages:
         // const roverImages = buildCameraImages(apiData, 'FHAZ')
         // console.log('roverImages : ', roverImages)
         // return roverImages
 
         // // DEBUG collectionImages:
-        // const imageCollection = buildImageCollection(apiData, cameraList)
+        // const imageCollection = buildImageCollection(apiData, ['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES'])
         // console.log('ImageCollection : ', imageCollection)
         // return imageCollection
 
