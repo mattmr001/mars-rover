@@ -39,19 +39,6 @@ const selectedRover = (evt) => {
     return roverName
 }
 
-// const ShowRover = (selectedRover) => {
-//     // debug
-//     // console.log('Starting selectedRover: ', store.get(selectedRover))
-//     const roverDetails = document.getElementById('roverDetails')
-//     const roverName = evt.target.getAttribute('datarovername')
-//     // console.log('store selectedRover: ', selectedRover)
-//     updateStore({"selectedRover": roverName})
-//     const images = RoverImages(store['roverData'], roverName)
-//
-//     roverDetails.innerHTML = images
-//     console.log(roverDetails)
-// }
-
 
 // create content
 const App = (state) => {
@@ -65,10 +52,13 @@ const App = (state) => {
         ${SideBar(store['rovers'])}
 
         <main class="content">
-            ${Greeting(store['selectedRover'])}
-            <section id="roverDetails" class="content__rover-details">
-                <h3>Data to be placed</h3>
-                <p>Data not yet placed</p>
+            <section id="roverDetails" class="rover-details">
+                ${Greeting(store['selectedRover'])}
+                <div class="content__rover-details"
+                    ${RoverInfo(store)}
+                </div>
+            </section>
+            <section class="rover-images">
                 ${RoverImages(store)}
             </section>
         </main>
@@ -88,11 +78,11 @@ window.addEventListener('load', () => {
 const Greeting = (name) => {
     if (name) {
         return `
-            <h2>Rover Name: ${name}</h2>
+            <h2>${name}</h2>
         `
     }
     return `
-        <h2>Select rover from menu</h2>
+        <h2>Waiting for selection...</h2>
     `
 }
 
@@ -116,7 +106,7 @@ const SideBar = (rovers) => {
     }).join("")
     return `
         <aside class="sidebar">
-            <h2>ROVERS</h2>
+            <h2>Select Rover</h2>
             <ul class="rover-list">${roverList}</ul>
         </aside>
     `
@@ -136,22 +126,9 @@ const SideBar = (rovers) => {
 
 const RoverImages = (store) => {
 
-
     const rover = store.roverData.filter(obj => {
         return obj.rover_name === store.selectedRover
     })
-    console.log('New store: ', store)
-    console.log('selectedRover output: ', store.selectedRover)
-    console.log('selected rover: ', rover)
-
-    // return rover
-    // console.log('RoverImages roverData:', store.roverData)
-    // console.log('RoverImages selectedRover:', store.selectedRover)
-    // const rover = store.roverData.filter(obj => {
-    //     console.log('RoverImages obj:', obj)
-    //     console.log('RoverImages rover_name:', obj.rover_name)
-    //     return obj.rover_name === selectedRover
-    // })
 
     if (rover[0] != undefined) {
         const roverImages = rover[0]['rover_images']
@@ -165,30 +142,33 @@ const RoverImages = (store) => {
         }).join("")
         return `<div class="img_grid">${builtImages}</div>`
     } else {
-        return `<div class="img_grid">failed to retrieve images</div>`
+        return `<div class=""></div>`
     }
-
-
-    // const builtImages = roverImages.map(entry => {
-    //     return`
-    //         <figure class="img_grid__figure">
-    //             <img class="img_grid__img" src="${entry['img_src']}">
-    //             <figcaption class="img_grid__caption">CAMERA: ${entry['camera_name']}</figcaption>
-    //         </figure>
-    //     `
-    // }).join("")
-    // return `<div class="img_grid">${builtImages}</div>`
 }
 
-const RoverInfo = (rovers) => {
-    const launchDate = rovers[0]['rover_info']['earth_date']
-    const landingDate = rovers[0]['rover_info']['earth_date']
-    const status = rovers[0]['rover_info']['status']
-    const photoDate = rovers[0]['rover_info']['photo_date']
 
+const RoverInfo = (store) => {
+
+    const rover = store.roverData.filter(obj => {
+        return obj.rover_name === store.selectedRover
+    })
+
+    if (rover[0] != undefined) {
+        const roverInfo = rover[0]['rover_info']
+        console.log("roverInfo : ", roverInfo)
         return`
-            <pre>${roverInfo}</pre>
-        `
+                <p>launch date : ${roverInfo['launch_date']}</p>
+                <p>landing date : ${roverInfo['landing_date']}</p>
+                <p>status : ${roverInfo['status']}</p>
+                <p>photo date: ${roverInfo['photo_date']}</p>
+            `
+    } else {
+        return `
+            <div class="">
+                <p></p>
+            </div>
+            `
+    }
 }
 
 const RoverData = (roversData) => {
@@ -208,18 +188,6 @@ const RoverData = (roversData) => {
 
 
 // ------------------------------------------------------  API CALLS
-
-// Example API call
-// const getImageOfTheDay = (state) => {
-//     let { apod } = state
-//
-//     fetch(`http://localhost:3000/apod`)
-//         .then(res => res.json())
-//         .then(apod => updateStore(store, { apod }))
-//
-//     return data
-// }
-
 const getRoverData = (state) => {
 
     let { selectedRover } = state

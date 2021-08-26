@@ -7,7 +7,7 @@
 body {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: inherit;
-  background-color: #fff;
+  background-color: #F0F0F0;
   color: #444;
   height: 100vh;
   margin: 0;
@@ -74,16 +74,28 @@ h1, h2, h3, h4, p {
     height: 100%;
     border: none;
     max-height: 100%;
-    overflow-y: auto;
+    /*overflow-x: auto;*/
+    display: grid;
+    grid-template-areas:
+    "a" "b";
+    grid-template-columns: 12fr;
+  }
+
+  .rover-details{
+    grid-area: a;
+  }
+
+  .rover-images{
+    grid-area: b;
   }
 
   .img_grid{
-    overflow-: hidden;
     display: grid;
     grid-gap: 16px;
     padding: 16px;
-    grid-auto-flow: row;
-    grid-auto-columns: auto;
+    overflow-y: auto;
+    /*grid-auto-flow: column;*/
+    /*grid-auto-columns: auto;*/
   }
 
   .img_grid__figure{
@@ -110,16 +122,18 @@ h1, h2, h3, h4, p {
     grid-column: 1 / -1;
     /* needed for the floated layout */
     clear: both;
+    border: 1px solid black;
+    background-color: #F0F0F0;
   }
 
 }
 
 .wrapper > * {
-  background-color: #fff;
+  /*background-color: #fff;*/
   color: #000;
   border-radius: 0px;
   padding: 20px;
-  font-size: 150%;
+  font-size: 100%;
   /* needed for the floated layout*/
   margin-bottom: 10px;
 }
@@ -149,13 +163,17 @@ h1, h2, h3, h4, p {
     display: block;
   }
 
+  .rover-images{
+    overflow-y: scroll;
+    height: 100%;
+  }
+
   .img_grid{
-    overflow-: hidden;
     display: grid;
     grid-gap: 16px;
     padding: 16px;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(400px,1fr);
+    grid-auto-flow: row;
+    /*grid-auto-columns: minmax(400px,1fr);*/
     overflow-x: auto;
     overflow-y: hidden;
   }
@@ -168,8 +186,24 @@ h1, h2, h3, h4, p {
     margin: 5px 5px 10px;
   }
 
+  .sidebar{
+    border-radius: 50px;
+    /*background: white;*/
+    /*box-shadow: 8px 7px 20px 6px #d0cfcf, 1px 8px 20px 8px #ffffff*/
+  }
+
   .content {
     border: 1px solid black;
+    height: 100%;
+    overflow-y: hidden;
+    display: grid;
+    grid-template-areas:
+    "a b";
+    grid-template-columns: 4fr 8fr;
+  }
+
+  header footer {
+    background-color: #F0F0F0;
   }
 
   .footer{
