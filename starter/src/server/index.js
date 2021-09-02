@@ -19,24 +19,11 @@ app.use('/', express.static(path.join(__dirname, '../public')))
 
 // your API calls
 
-// example API call
-// app.get('/apod', async (req, res) => {
-//     try {
-//         let image = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.API_KEY}`)
-//             .then(res => res.json())
-//         res.send({ image })
-//     } catch (err) {
-//         console.log('error:', err);
-//     }
-// })
-
 // Globals
 const globals = Map({
     rover_list: List(['Curiosity', 'Opportunity', 'Spirit']),
     camera_list: List(['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES']),
 });
-
-// const cameraList = ['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM', 'PANCAM', 'MINITES']
 
 // :::::::::::::::::::::::::::::::::::::::::::
 
@@ -168,14 +155,14 @@ async function buildAllRovers (globalsObj) {
     return allRoverData
 }
 
-
+/*
+ * Uncomment code to debug/test backend methods
+ */
 async function debug () {
     try {
-        console.log('DEBUG START: ');
         // console.log(roversMap.get('rover_list').get(1))
-
-        const roverName = globals.get('rover_list').get('1')
-        const apiData = await getRoverApiData('Opportunity')
+        // const roverName = globals.get('rover_list').get('1')
+        // const apiData = await getRoverApiData('Opportunity')
         // DEBUG apiData:
         // console.log('apiData : ', apiData)
         // return apiData
@@ -207,15 +194,13 @@ async function debug () {
         // DEBUG allRoverData:
         // const data = buildAllRovers(globals)
         // return data
-
-
     } catch (error) {
         console.log(error)
     }
 }
 
 debug().then(data => {
-    console.log('DEBUG OUTPUT: ');
+    console.log('DEBUG START: ');
     console.log(data);
     console.log('DEBUG END')
 });

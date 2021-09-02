@@ -8,6 +8,7 @@
 
 let store = {
     selectedRover: '',
+    selectedCamera: '',
     rovers: Immutable.List(['Curiosity', 'Opportunity', 'Spirit']),
     roverData: '',
     }
@@ -24,19 +25,30 @@ const render = async (root, state) => {
     root.innerHTML = App(state)
     const roverListItemElements = document.querySelectorAll("[datarovername]");
     roverListItemElements.forEach(function (roverName) {
-        roverName.addEventListener('click', selectedRover);
+        roverName.addEventListener('click', clickedRover);
     });
 
+    const roverCameraButtons = document.querySelectorAll("[datacameraname]");
+    roverCameraButtons.forEach(function (roverName) {
+        roverName.addEventListener('click', clickedCamera);
+    });
 }
 
-const selectedRover = (evt) => {
-
+const clickedRover = (evt) => {
     // const roverDetails = document.getElementById('roverDetails')
     const roverName = evt.target.getAttribute('datarovername')
     updateStore({"selectedRover": roverName})
-    console.log('New store: ', store)
-    console.log('selectedRover output: ', roverName)
+    updateStore({"selectedCamera": ''})
     return roverName
+}
+
+const clickedCamera = (evt) => {
+    const cameraName = evt.target.getAttribute('datacameraname')
+    const cameraImg = evt.target.getAttribute('dataimg')
+    updateStore({"selectedCamera": {name: cameraName, img: cameraImg}})
+    console.log(store.selectedCamera)
+    console.log(store)
+    return cameraName
 }
 
 
@@ -48,19 +60,24 @@ const App = (state) => {
     return `
         <div class="wrapper">
         <header class="header">NASA ROVERS</header>
-
-        ${SideBar(store['rovers'])}
-
+        ${SideBar(store['rovers'], ListRovers)}
         <main class="content">
-            <section id="roverDetails" class="rover-details">
-                ${Greeting(store['selectedRover'])}
-                <div class="content__rover-details"
-                    ${RoverInfo(store)}
+            <section class="rover-display">
+                <div class="rover-display__inner">
+                    <div id="roverDetails" class="rover-details">
+                        ${Greeting(store['selectedRover'])}
+                        <div class="content__rover-details">
+                            ${RoverInfo(store)}
+                        </div>
+                    </div>
+                    <div class="rover-images">
+                        ${RoverImages(store, buildImage)}
+                    </div>
                 </div>
             </section>
-            <section class="rover-images">
-                ${RoverImages(store)}
-            </section>
+        <section class="rover-camera-buttons">
+            ${CameraButtons(store, findSelectedRover, buildButtons)}
+        </section>
         </main>
         <footer class="footer">2021</footer>
         </div>
@@ -74,6 +91,8 @@ window.addEventListener('load', () => {
 
 // ------------------------------------------------------  COMPONENTS
 
+// Rubric requires us to create at least two High Order Functions which should correspond to re-usable UI components
+
 // Pure function that renders conditional information -- THIS IS JUST AN EXAMPLE, you can delete it.
 const Greeting = (name) => {
     if (name) {
@@ -86,75 +105,94 @@ const Greeting = (name) => {
     `
 }
 
-// const ListRovers = (rovers) => {
-//     const roverList = rovers.map(x => {
-//         const rover = x['rover_name']
-//         return `
-//             <li datarovername="${rover}">${rover}</li>
-//         `
-//     }).join("")
-//     return `
-//         <ul>${roverList}</ul>
-//     `
-// }
+// Pure function
+const ListRovers = function (roverName) {
 
-const SideBar = (rovers) => {
-    const roverList = rovers.map(roverName => {
+    if (store.selectedRover === roverName) {
+
         return `
-            <li class="rover-list__item" datarovername="${roverName}">${roverName}</li>
+            <div class="rover-list__radio-btn-wrapper">
+                <input type="radio" name="roverNames" id="${roverName}target" class="rover-list__radio-btn" datarovername="${roverName}">
+                <label class="rover-list__label--clicked" for="${roverName}target">${roverName}</label>
+            </div>
         `
-    }).join("")
+    } else {
+       return `
+        <div class="rover-list__radio-btn-wrapper">
+            <input type="radio" name="roverNames" id="${roverName}target" class="rover-list__radio-btn" datarovername="${roverName}">
+            <label class="rover-list__label" for="${roverName}target">${roverName}</label>
+        </div>
+    `
+    }
+}
+
+// Higher Order Function 1
+const SideBar = (rovers, ListRovers) => {
+    const listItems = rovers.map(ListRovers).join("")
     return `
         <aside class="sidebar">
-            <h2>Select Rover</h2>
-            <ul class="rover-list">${roverList}</ul>
+            <div class="rover-btn-group">${listItems}</div>
         </aside>
     `
 }
 
-// const ShowRovers = () => {
-//     const roverListItemElements = document.querySelectorAll("[datarovername]");
-//     console.log('roverListItemElements : ',roverListItemElements)
-//     // const elements = roverListItemElements.forEach(el =>{
-//     //     console.log(el)
-//     //     el.addEventListener(('click', (e) => {
-//     //         console.log('clicked')
-//     //     }))
-//     // })
-//     return roverListItemElements
-// }
 
-const RoverImages = (store) => {
-
+const findSelectedRover = function (store) {
     const rover = store.roverData.filter(obj => {
         return obj.rover_name === store.selectedRover
     })
+    return rover[0]
+}
 
-    if (rover[0] != undefined) {
-        const roverImages = rover[0]['rover_images']
-        const builtImages = roverImages.map(entry => {
-            return`
-                <figure class="img_grid__figure">
-                    <img class="img_grid__img" src="${entry['img_src']}">
-                    <figcaption class="img_grid__caption">CAMERA: ${entry['camera_name']}</figcaption>
-                </figure>
-            `
-        }).join("")
-        return `<div class="img_grid">${builtImages}</div>`
+// pure function
+const buildImage = function (entry) {
+    return`
+        <figure class="img_grid__figure">
+            <img class="img_grid__img" src="${entry['img']}">
+            <figcaption class="img_grid__caption">CAMERA: ${entry['name']}</figcaption>
+        </figure>
+    `
+}
+
+// Higher Order Function 2
+const RoverImages = (store, buildImages) => {
+    const selectedCamera = store.selectedCamera
+    if (selectedCamera) {
+        const builtImage = buildImage(selectedCamera)
+        return `<div class="img_grid">${builtImage}</div>`
     } else {
         return `<div class=""></div>`
     }
 }
 
+const buildButtons = function (entry) {
+    return`
+        <button class="btn-primary" dataCameraName="${entry['camera_name']}" dataimg="${entry['img_src']}">${entry['camera_name']}</button>
+    `
+}
+
+const CameraButtons = (store, findSelectedRover) => {
+    const rover = findSelectedRover(store)
+
+    if (rover != undefined) {
+        const roverImages = rover['rover_images']
+
+        if (store.selectedCamera == ''){
+
+        }
+
+        const builtbuttons = roverImages.map(buildButtons).join("")
+        return `<div class="btn-grid">${builtbuttons}</div>`
+    } else {
+        return `<div class=""></div>`
+    }
+
+}
 
 const RoverInfo = (store) => {
-
-    const rover = store.roverData.filter(obj => {
-        return obj.rover_name === store.selectedRover
-    })
-
-    if (rover[0] != undefined) {
-        const roverInfo = rover[0]['rover_info']
+    const rover = findSelectedRover(store)
+    if (rover != undefined) {
+        const roverInfo = rover['rover_info']
         console.log("roverInfo : ", roverInfo)
         return`
                 <p>launch date : ${roverInfo['launch_date']}</p>
@@ -172,15 +210,9 @@ const RoverInfo = (store) => {
 }
 
 const RoverData = (roversData) => {
-    console.log("Rovers data start: ", roversData)
     if (roversData === "" ) {
-        // console.log("RoverData is empty")
-        // console.log('In condtion : ', roversData)
-
         // get the name of the specified rover via the roversData obj
         getRoverData(roversData)
-        // getRoverData(store)
-        console.log('In condtion end : ', roversData)
     } else {
         console.log("RoverData not empty")
     }
