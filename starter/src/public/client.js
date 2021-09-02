@@ -59,7 +59,7 @@ const App = (state) => {
 
     return `
         <div class="wrapper">
-        <header class="header">NASA ROVERS</header>
+        <header class="header">ROVER DASHBOARD</header>
         ${SideBar(store['rovers'], ListRovers)}
         <main class="content">
             <section class="rover-display">

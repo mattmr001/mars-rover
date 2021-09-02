@@ -59,6 +59,7 @@ h1, h2, h3, h4, p {
     justify-content: space-around;
     align-items: center;
     height: 100%;
+      padding: 15px;
   }
 
 
@@ -159,7 +160,7 @@ h1, h2, h3, h4, p {
     "a a"
     "b b";
     /*grid-template-columns: 4fr 8fr;*/
-    /*grid-template-rows: 10fr 2fr;*/
+    grid-template-rows: 10fr 2fr;
     grid-gap: 30px;
   }
 
@@ -207,15 +208,18 @@ r
 
   .img_grid__figure{
      /* needed for the flex layout*/
-    margin: 0px 0px 20px 35px;
+    margin: 0px 0px 0px 0px;
+    /*margin: 0px 0px 20px 35px;*/
     flex: 1 1 200px;
   }
+
+
 
   .img_grid__img{
      /* needed for the flex layout*/
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    object-fit: none;
   }
 
 
@@ -368,6 +372,7 @@ r
     justify-content: space-around;
     align-items: center;
     height: 100%;
+    padding: unset;
   }
 
    .rover-list__label--clicked{
@@ -420,6 +425,19 @@ r
    .img_grid{
      width: 100%;
    }
+
+   .img_grid__figure{
+     /* needed for the flex layout*/
+    margin: 0px 0px 20px 35px;
+    flex: 1 1 200px;
+  }
+
+   .img_grid__img{
+     /* needed for the flex layout*/
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
 
 /*   label:after {*/
